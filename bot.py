@@ -44,6 +44,11 @@ def split_members(members, team_size):
     ]
 
 
+def tag_name(number):
+    """1→A、2→B、3→C..."""
+    return chr(64 + number)
+
+
 @bot.event
 async def on_ready():
     print(f"ログインしました: {bot.user}")
@@ -102,7 +107,7 @@ async def team(
     message = f"🎲 **{number}チームにランダム分け！**\n\n"
 
     for i, team_members in enumerate(teams, 1):
-        message += f"**Team {i}**\n"
+        message += f"**Tag {tag_name(i)}**\n"
 
         for member in team_members:
             message += f"{member.mention}\n"
@@ -158,7 +163,7 @@ async def teammember(
     message = f"🎲 **1チーム{number}人でランダム分け！**\n\n"
 
     for i, team_members in enumerate(teams, 1):
-        message += f"**Team {i}**\n"
+        message += f"**Tag {tag_name(i)}**\n"
 
         for member in team_members:
             message += f"{member.mention}\n"
