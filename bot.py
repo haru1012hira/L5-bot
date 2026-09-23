@@ -18,16 +18,26 @@ bot = commands.Bot(
 
 
 def get_channel_members(channel):
-    """そのテキストチャンネルを見られるメンバーを取得"""
+    """チャンネルまたはスレッドに参加しているメンバーを取得"""
     members = []
 
-    for member in channel.guild.members:
-        if member.bot:
-            continue
+    # 通常のテキストチャンネル
+    if isinstance(channel, discord.TextChannel):
+        for member in channel.guild.members:
+            if member.bot:
+                continue
 
-        permissions = channel.permissions_for(member)
+            permissions = channel.permissions_for(member)
 
-        if permissions.view_channel:
+            if permissions.view_channel:
+                members.append(member)
+
+    # スレッド
+    elif isinstance(channel, discord.Thread):
+        for member in channel.members:
+            if member.bot:
+                continue
+
             members.append(member)
 
     return members
@@ -71,9 +81,13 @@ async def team(
     interaction: discord.Interaction,
     number: int
 ):
-    if not isinstance(interaction.channel, discord.TextChannel):
+    # テキストチャンネルまたはスレッドか確認
+    if not isinstance(
+        interaction.channel,
+        (discord.TextChannel, discord.Thread)
+    ):
         await interaction.response.send_message(
-            "❌ このコマンドはテキストチャンネルで使用してください。",
+            "❌ このコマンドはテキストチャンネルまたはスレッドで使用してください。",
             ephemeral=True
         )
         return
@@ -128,9 +142,13 @@ async def teammember(
     interaction: discord.Interaction,
     number: int
 ):
-    if not isinstance(interaction.channel, discord.TextChannel):
+    # テキストチャンネルまたはスレッドか確認
+    if not isinstance(
+        interaction.channel,
+        (discord.TextChannel, discord.Thread)
+    ):
         await interaction.response.send_message(
-            "❌ このコマンドはテキストチャンネルで使用してください。",
+            "❌ このコマンドはテキストチャンネルまたはスレッドで使用してください。",
             ephemeral=True
         )
         return
