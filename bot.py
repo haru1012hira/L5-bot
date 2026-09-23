@@ -17,8 +17,8 @@ bot = commands.Bot(
 )
 
 
-def get_channel_members(channel):
-    """チャンネルまたはスレッドに参加しているメンバーを取得"""
+async def get_channel_members(channel):
+    """テキストチャンネルまたはスレッドの参加メンバーを取得"""
     members = []
 
     # 通常のテキストチャンネル
@@ -34,7 +34,17 @@ def get_channel_members(channel):
 
     # スレッド
     elif isinstance(channel, discord.Thread):
-        for member in channel.members:
+        for thread_member in channel.members:
+            member = channel.guild.get_member(thread_member.id)
+
+            if member is None:
+                try:
+                    member = await channel.guild.fetch_member(
+                        thread_member.id
+                    )
+                except discord.NotFound:
+                    continue
+
             if member.bot:
                 continue
 
@@ -81,7 +91,6 @@ async def team(
     interaction: discord.Interaction,
     number: int
 ):
-    # テキストチャンネルまたはスレッドか確認
     if not isinstance(
         interaction.channel,
         (discord.TextChannel, discord.Thread)
@@ -99,7 +108,7 @@ async def team(
         )
         return
 
-    members = get_channel_members(interaction.channel)
+    members = await get_channel_members(interaction.channel)
 
     if len(members) == 0:
         await interaction.response.send_message(
@@ -142,7 +151,6 @@ async def teammember(
     interaction: discord.Interaction,
     number: int
 ):
-    # テキストチャンネルまたはスレッドか確認
     if not isinstance(
         interaction.channel,
         (discord.TextChannel, discord.Thread)
@@ -160,7 +168,7 @@ async def teammember(
         )
         return
 
-    members = get_channel_members(interaction.channel)
+    members = await get_channel_members(interaction.channel)
 
     if len(members) == 0:
         await interaction.response.send_message(
